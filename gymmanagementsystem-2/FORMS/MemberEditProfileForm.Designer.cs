@@ -42,17 +42,18 @@
             // lblTitle
             // 
             this.lblTitle.AutoSize = true;
-            this.lblTitle.Location = new System.Drawing.Point(191, 0);
+            this.lblTitle.Location = new System.Drawing.Point(143, 9);
             this.lblTitle.Name = "lblTitle";
             this.lblTitle.Size = new System.Drawing.Size(265, 41);
             this.lblTitle.TabIndex = 1;
             this.lblTitle.Text = "EDIT MY PROFILE";
+            this.lblTitle.Click += new System.EventHandler(this.lblTitle_Click);
             // 
             // lblEmail
             // 
             this.lblEmail.AutoSize = true;
             this.lblEmail.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lblEmail.Location = new System.Drawing.Point(59, 73);
+            this.lblEmail.Location = new System.Drawing.Point(87, 89);
             this.lblEmail.Name = "lblEmail";
             this.lblEmail.Size = new System.Drawing.Size(51, 23);
             this.lblEmail.TabIndex = 3;
@@ -63,7 +64,7 @@
             // 
             this.lblPhone.AutoSize = true;
             this.lblPhone.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lblPhone.Location = new System.Drawing.Point(59, 142);
+            this.lblPhone.Location = new System.Drawing.Point(87, 158);
             this.lblPhone.Name = "lblPhone";
             this.lblPhone.Size = new System.Drawing.Size(59, 23);
             this.lblPhone.TabIndex = 4;
@@ -73,7 +74,7 @@
             // 
             this.lblAddress.AutoSize = true;
             this.lblAddress.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lblAddress.Location = new System.Drawing.Point(59, 218);
+            this.lblAddress.Location = new System.Drawing.Point(87, 234);
             this.lblAddress.Name = "lblAddress";
             this.lblAddress.Size = new System.Drawing.Size(70, 23);
             this.lblAddress.TabIndex = 6;
@@ -81,21 +82,21 @@
             // 
             // txtEmail
             // 
-            this.txtEmail.Location = new System.Drawing.Point(150, 55);
+            this.txtEmail.Location = new System.Drawing.Point(178, 71);
             this.txtEmail.Name = "txtEmail";
             this.txtEmail.Size = new System.Drawing.Size(230, 47);
             this.txtEmail.TabIndex = 7;
             // 
             // txtPhone
             // 
-            this.txtPhone.Location = new System.Drawing.Point(150, 118);
+            this.txtPhone.Location = new System.Drawing.Point(178, 134);
             this.txtPhone.Name = "txtPhone";
             this.txtPhone.Size = new System.Drawing.Size(225, 47);
             this.txtPhone.TabIndex = 8;
             // 
             // textBox3
             // 
-            this.textBox3.Location = new System.Drawing.Point(155, 201);
+            this.textBox3.Location = new System.Drawing.Point(183, 217);
             this.textBox3.Multiline = true;
             this.textBox3.Name = "textBox3";
             this.textBox3.Size = new System.Drawing.Size(220, 39);

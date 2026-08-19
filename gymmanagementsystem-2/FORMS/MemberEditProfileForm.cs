@@ -295,5 +295,10 @@ namespace gymmanagementsystem_2.FORMS
         {
             // No action required.
         }
+
+        private void lblTitle_Click(object sender, EventArgs e)
+        {
+
+        }
     }
 }
