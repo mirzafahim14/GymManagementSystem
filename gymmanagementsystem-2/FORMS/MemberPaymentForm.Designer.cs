@@ -33,6 +33,17 @@
             this.lblMemberName = new System.Windows.Forms.Label();
             this.lblTotalPayments = new System.Windows.Forms.Label();
             this.lblTotalAmount = new System.Windows.Forms.Label();
+            this.dgvPayments = new System.Windows.Forms.DataGridView();
+            this.colAmount = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.colPaymentDate = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.colPaymentMethod = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.colTransactionReference = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.colStatus = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.colNotes = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.colPaymentId = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.btnRefresh = new System.Windows.Forms.Button();
+            this.btnClose = new System.Windows.Forms.Button();
+            ((System.ComponentModel.ISupportInitialize)(this.dgvPayments)).BeginInit();
             this.SuspendLayout();
             // 
             // lblTitle
@@ -66,7 +77,7 @@
             // lblTotalPayments
             // 
             this.lblTotalPayments.AutoSize = true;
-            this.lblTotalPayments.Location = new System.Drawing.Point(22, 169);
+            this.lblTotalPayments.Location = new System.Drawing.Point(439, 95);
             this.lblTotalPayments.Name = "lblTotalPayments";
             this.lblTotalPayments.Size = new System.Drawing.Size(150, 23);
             this.lblTotalPayments.TabIndex = 7;
@@ -75,17 +86,114 @@
             // lblTotalAmount
             // 
             this.lblTotalAmount.AutoSize = true;
-            this.lblTotalAmount.Location = new System.Drawing.Point(12, 202);
+            this.lblTotalAmount.Location = new System.Drawing.Point(439, 134);
             this.lblTotalAmount.Name = "lblTotalAmount";
             this.lblTotalAmount.Size = new System.Drawing.Size(176, 23);
             this.lblTotalAmount.TabIndex = 9;
             this.lblTotalAmount.Text = "Total Amount Paid: —";
+            // 
+            // dgvPayments
+            // 
+            this.dgvPayments.AllowUserToAddRows = false;
+            this.dgvPayments.AllowUserToDeleteRows = false;
+            this.dgvPayments.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.Fill;
+            this.dgvPayments.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.dgvPayments.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
+            this.colAmount,
+            this.colPaymentDate,
+            this.colPaymentMethod,
+            this.colTransactionReference,
+            this.colStatus,
+            this.colNotes,
+            this.colPaymentId});
+            this.dgvPayments.Location = new System.Drawing.Point(25, 174);
+            this.dgvPayments.Name = "dgvPayments";
+            this.dgvPayments.ReadOnly = true;
+            this.dgvPayments.RowHeadersVisible = false;
+            this.dgvPayments.RowHeadersWidth = 51;
+            this.dgvPayments.RowTemplate.Height = 24;
+            this.dgvPayments.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
+            this.dgvPayments.Size = new System.Drawing.Size(717, 261);
+            this.dgvPayments.TabIndex = 10;
+            // 
+            // colAmount
+            // 
+            this.colAmount.HeaderText = "Amount";
+            this.colAmount.MinimumWidth = 6;
+            this.colAmount.Name = "colAmount";
+            this.colAmount.ReadOnly = true;
+            // 
+            // colPaymentDate
+            // 
+            this.colPaymentDate.HeaderText = "Payment Date";
+            this.colPaymentDate.MinimumWidth = 6;
+            this.colPaymentDate.Name = "colPaymentDate";
+            this.colPaymentDate.ReadOnly = true;
+            // 
+            // colPaymentMethod
+            // 
+            this.colPaymentMethod.HeaderText = "Payment Method";
+            this.colPaymentMethod.MinimumWidth = 6;
+            this.colPaymentMethod.Name = "colPaymentMethod";
+            this.colPaymentMethod.ReadOnly = true;
+            // 
+            // colTransactionReference
+            // 
+            this.colTransactionReference.HeaderText = "Transaction Reference";
+            this.colTransactionReference.MinimumWidth = 6;
+            this.colTransactionReference.Name = "colTransactionReference";
+            this.colTransactionReference.ReadOnly = true;
+            // 
+            // colStatus
+            // 
+            this.colStatus.HeaderText = "Status";
+            this.colStatus.MinimumWidth = 6;
+            this.colStatus.Name = "colStatus";
+            this.colStatus.ReadOnly = true;
+            // 
+            // colNotes
+            // 
+            this.colNotes.HeaderText = "Notes";
+            this.colNotes.MinimumWidth = 6;
+            this.colNotes.Name = "colNotes";
+            this.colNotes.ReadOnly = true;
+            // 
+            // colPaymentId
+            // 
+            this.colPaymentId.HeaderText = "Payment ID";
+            this.colPaymentId.MinimumWidth = 6;
+            this.colPaymentId.Name = "colPaymentId";
+            this.colPaymentId.ReadOnly = true;
+            this.colPaymentId.Visible = false;
+            // 
+            // btnRefresh
+            // 
+            this.btnRefresh.Location = new System.Drawing.Point(98, 451);
+            this.btnRefresh.Name = "btnRefresh";
+            this.btnRefresh.Size = new System.Drawing.Size(209, 40);
+            this.btnRefresh.TabIndex = 11;
+            this.btnRefresh.Text = "REFRESH";
+            this.btnRefresh.UseVisualStyleBackColor = true;
+            this.btnRefresh.Click += new System.EventHandler(this.btnRefresh_Click_1);
+            // 
+            // btnClose
+            // 
+            this.btnClose.Location = new System.Drawing.Point(461, 451);
+            this.btnClose.Name = "btnClose";
+            this.btnClose.Size = new System.Drawing.Size(190, 40);
+            this.btnClose.TabIndex = 13;
+            this.btnClose.Text = "CL0SE";
+            this.btnClose.UseVisualStyleBackColor = true;
+            this.btnClose.Click += new System.EventHandler(this.btnClose_Click_1);
             // 
             // MemberPaymentForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 23F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(882, 503);
+            this.Controls.Add(this.btnClose);
+            this.Controls.Add(this.btnRefresh);
+            this.Controls.Add(this.dgvPayments);
             this.Controls.Add(this.lblTotalAmount);
             this.Controls.Add(this.lblTotalPayments);
             this.Controls.Add(this.lblMemberName);
@@ -99,6 +207,7 @@
             this.Name = "MemberPaymentForm";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "My Payments - Gym Management System";
+            ((System.ComponentModel.ISupportInitialize)(this.dgvPayments)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -111,5 +220,15 @@
         private System.Windows.Forms.Label lblMemberName;
         private System.Windows.Forms.Label lblTotalPayments;
         private System.Windows.Forms.Label lblTotalAmount;
+        private System.Windows.Forms.DataGridView dgvPayments;
+        private System.Windows.Forms.DataGridViewTextBoxColumn colAmount;
+        private System.Windows.Forms.DataGridViewTextBoxColumn colPaymentDate;
+        private System.Windows.Forms.DataGridViewTextBoxColumn colPaymentMethod;
+        private System.Windows.Forms.DataGridViewTextBoxColumn colTransactionReference;
+        private System.Windows.Forms.DataGridViewTextBoxColumn colStatus;
+        private System.Windows.Forms.DataGridViewTextBoxColumn colNotes;
+        private System.Windows.Forms.DataGridViewTextBoxColumn colPaymentId;
+        private System.Windows.Forms.Button btnRefresh;
+        private System.Windows.Forms.Button btnClose;
     }
 }
