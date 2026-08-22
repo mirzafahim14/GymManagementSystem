@@ -2,577 +2,347 @@
 using System;
 using System.Data;
 using System.Windows.Forms;
+using gymmanagementsystem_2;
 
 namespace gymmanagementsystem_2.FORMS
 {
     public partial class DashboardForm : Form
     {
-        public DashboardForm()
+        private readonly string currentUserRole;
+
+        public DashboardForm(string role)
         {
             InitializeComponent();
 
-            // Dashboard open হলে data load হবে
+            currentUserRole = role?.Trim() ?? "";
+
             this.Load += DashboardForm_Load;
         }
 
-        // =========================================================
-        // FORM LOAD
-        // =========================================================
         private void DashboardForm_Load(object sender, EventArgs e)
         {
+            if (currentUserRole != "Admin" &&
+                currentUserRole != "Super Admin")
+            {
+                MessageBox.Show(
+                    "Access denied. This dashboard is only for Admin and Super Admin.",
+                    "Access Denied",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Warning);
+
+                Close();
+                return;
+            }
+
             LoadDashboardData();
         }
 
-        // =========================================================
-        // LOAD DASHBOARD DATA
-        // =========================================================
         private void LoadDashboardData()
         {
             try
             {
-                // =================================================
-                // 1. TOTAL MEMBERS
-                // =================================================
                 object memberResult =
-                    DbHelper.ExecuteScalar(
-                        "SELECT COUNT(*) FROM Members"
-                    );
+                    DbHelper.ExecuteScalar("SELECT COUNT(*) FROM Members");
+                lblTotalMembers.Text = Convert.ToString(memberResult);
 
-                lblTotalMembers.Text =
-                    Convert.ToString(memberResult);
-
-
-                // =================================================
-                // 2. TOTAL TRAINERS
-                // =================================================
                 object trainerResult =
-                    DbHelper.ExecuteScalar(
-                        "SELECT COUNT(*) FROM Trainers"
-                    );
+                    DbHelper.ExecuteScalar("SELECT COUNT(*) FROM Trainers");
+                lblTotalTrainers.Text = Convert.ToString(trainerResult);
 
-                lblTotalTrainers.Text =
-                    Convert.ToString(trainerResult);
-
-
-                // =================================================
-                // 3. TODAY'S ATTENDANCE
-                // =================================================
                 object attendanceResult =
-                    DbHelper.ExecuteScalar(
-                        @"
+                    DbHelper.ExecuteScalar(@"
                         SELECT COUNT(*)
                         FROM Attendance
-                        WHERE AttendanceDate =
-                              CAST(GETDATE() AS DATE)"
-                    );
+                        WHERE AttendanceDate = CAST(GETDATE() AS DATE)");
+                lblAttendanceToday.Text = Convert.ToString(attendanceResult);
 
-                lblAttendanceToday.Text =
-                    Convert.ToString(attendanceResult);
-
-
-                // =================================================
-                // 4. TOTAL PAYMENT
-                // =================================================
                 object paymentResult =
-                    DbHelper.ExecuteScalar(
-                        @"
+                    DbHelper.ExecuteScalar(@"
                         SELECT COALESCE(SUM(Amount), 0)
-                        FROM Payments"
-                    );
+                        FROM Payments");
 
-                decimal totalPayment =
-                    Convert.ToDecimal(paymentResult);
+                decimal totalPayment = Convert.ToDecimal(paymentResult);
+                IblTotalPayment.Text = totalPayment.ToString("0.00");
 
-                // IMPORTANT:
-                // বড় label = Payment
-                // ভিতরের value label = IblTotalPayment
-                IblTotalPayment.Text =
-                    totalPayment.ToString("0.00");
-
-
-                // =================================================
-                // 5. RECENT MEMBERS
-                // =================================================
                 string query = @"
                     SELECT TOP 10
-                        MemberId,
-                        FullName,
-                        Gender,
-                        DateOfBirth,
-                        Phone,
-                        Email,
-                        Address,
-                        JoinDate,
-                        PlanId,
-                        ExpiryDate,
-                        Status
-                    FROM Members
-                    ORDER BY MemberId DESC";
+                        m.MemberId,
+                        m.FullName,
+                        m.Gender,
+                        m.DateOfBirth,
+                        m.Phone,
+                        m.Email,
+                        m.Address,
+                        m.JoinDate,
+                        m.PlanId,
+                        m.ExpiryDate,
+                        m.Status
+                    FROM Members m
+                    ORDER BY m.MemberId DESC";
 
-                DataTable dt =
-                    DbHelper.ExecuteQuery(query);
-
+                DataTable dt = DbHelper.ExecuteQuery(query);
                 dgvRecentMembers.DataSource = dt;
 
-
-                // =================================================
-                // 6. DATAGRIDVIEW SETTINGS
-                // =================================================
-
-                if (dgvRecentMembers.Columns.Contains("MemberId"))
-                {
-                    dgvRecentMembers.Columns["MemberId"]
-                        .HeaderText = "Member ID";
-                }
-
-                if (dgvRecentMembers.Columns.Contains("FullName"))
-                {
-                    dgvRecentMembers.Columns["FullName"]
-                        .HeaderText = "Member Name";
-                }
-
-                if (dgvRecentMembers.Columns.Contains("Gender"))
-                {
-                    dgvRecentMembers.Columns["Gender"]
-                        .HeaderText = "Gender";
-                }
+                SetHeader("MemberId", "Member ID");
+                SetHeader("FullName", "Member Name");
+                SetHeader("Gender", "Gender");
+                SetHeader("DateOfBirth", "Date of Birth");
+                SetHeader("Phone", "Phone");
+                SetHeader("Email", "Email");
+                SetHeader("Address", "Address");
+                SetHeader("JoinDate", "Join Date");
+                SetHeader("PlanId", "Membership Plan");
+                SetHeader("ExpiryDate", "Expiry Date");
+                SetHeader("Status", "Status");
 
                 if (dgvRecentMembers.Columns.Contains("DateOfBirth"))
-                {
-                    dgvRecentMembers.Columns["DateOfBirth"]
-                        .HeaderText = "Date of Birth";
-
-                    dgvRecentMembers.Columns["DateOfBirth"]
-                        .DefaultCellStyle.Format =
-                        "dd-MMM-yyyy";
-                }
-
-                if (dgvRecentMembers.Columns.Contains("Phone"))
-                {
-                    dgvRecentMembers.Columns["Phone"]
-                        .HeaderText = "Phone";
-                }
-
-                if (dgvRecentMembers.Columns.Contains("Email"))
-                {
-                    dgvRecentMembers.Columns["Email"]
-                        .HeaderText = "Email";
-                }
-
-                if (dgvRecentMembers.Columns.Contains("Address"))
-                {
-                    dgvRecentMembers.Columns["Address"]
-                        .HeaderText = "Address";
-                }
+                    dgvRecentMembers.Columns["DateOfBirth"].DefaultCellStyle.Format = "dd-MMM-yyyy";
 
                 if (dgvRecentMembers.Columns.Contains("JoinDate"))
-                {
-                    dgvRecentMembers.Columns["JoinDate"]
-                        .HeaderText = "Join Date";
-
-                    dgvRecentMembers.Columns["JoinDate"]
-                        .DefaultCellStyle.Format =
-                        "dd-MMM-yyyy";
-                }
-
-                if (dgvRecentMembers.Columns.Contains("PlanId"))
-                {
-                    dgvRecentMembers.Columns["PlanId"]
-                        .HeaderText = "Membership Plan";
-                }
+                    dgvRecentMembers.Columns["JoinDate"].DefaultCellStyle.Format = "dd-MMM-yyyy";
 
                 if (dgvRecentMembers.Columns.Contains("ExpiryDate"))
-                {
-                    dgvRecentMembers.Columns["ExpiryDate"]
-                        .HeaderText = "Expiry Date";
-
-                    dgvRecentMembers.Columns["ExpiryDate"]
-                        .DefaultCellStyle.Format =
-                        "dd-MMM-yyyy";
-                }
-
-                if (dgvRecentMembers.Columns.Contains("Status"))
-                {
-                    dgvRecentMembers.Columns["Status"]
-                        .HeaderText = "Status";
-                }
-
-
-                // =================================================
-                // GRID SETTINGS
-                // =================================================
+                    dgvRecentMembers.Columns["ExpiryDate"].DefaultCellStyle.Format = "dd-MMM-yyyy";
 
                 dgvRecentMembers.AutoSizeColumnsMode =
                     DataGridViewAutoSizeColumnsMode.Fill;
-
                 dgvRecentMembers.SelectionMode =
                     DataGridViewSelectionMode.FullRowSelect;
-
                 dgvRecentMembers.MultiSelect = false;
-
                 dgvRecentMembers.ReadOnly = true;
-
                 dgvRecentMembers.AllowUserToAddRows = false;
-
                 dgvRecentMembers.AllowUserToDeleteRows = false;
             }
             catch (Exception ex)
             {
                 MessageBox.Show(
-                    "Dashboard data load failed.\n\n" +
-                    ex.Message,
+                    "Dashboard data load failed.\n\n" + ex.Message,
                     "Dashboard Error",
                     MessageBoxButtons.OK,
-                    MessageBoxIcon.Error
-                );
+                    MessageBoxIcon.Error);
             }
         }
 
-
-        // =========================================================
-        // GYM NAME
-        // =========================================================
-        private void lblGymName_Click(
-            object sender,
-            EventArgs e)
+        private void SetHeader(string columnName, string headerText)
         {
+            if (dgvRecentMembers.Columns.Contains(columnName))
+                dgvRecentMembers.Columns[columnName].HeaderText = headerText;
         }
 
-
-        // =========================================================
-        // MEMBERS
-        // =========================================================
-        private void btnMembers_Click(
-            object sender,
-            EventArgs e)
+        private void btnMembers_Click(object sender, EventArgs e)
         {
+            if (currentUserRole != "Admin" &&
+                currentUserRole != "Super Admin")
+            {
+                MessageBox.Show(
+                    "You do not have permission to access Member Management.",
+                    "Access Denied",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Warning);
+                return;
+            }
+
             try
             {
-                MemberForm memberForm =
-                    new MemberForm();
+                MemberForm memberForm = new MemberForm(currentUserRole);
 
                 this.Hide();
 
-                memberForm.FormClosed +=
-                    (s, args) =>
-                    {
-                        this.Show();
-                        LoadDashboardData();
-                    };
+                memberForm.FormClosed += (s, args) =>
+                {
+                    this.Show();
+                    LoadDashboardData();
+                };
 
                 memberForm.Show();
             }
             catch (Exception ex)
             {
                 MessageBox.Show(
-                    "Could not open Member Management.\n\n" +
-                    ex.Message,
+                    "Could not open Member Management.\n\n" + ex.Message,
                     "Member Error",
                     MessageBoxButtons.OK,
-                    MessageBoxIcon.Error
-                );
+                    MessageBoxIcon.Error);
             }
         }
 
-
-        // =========================================================
-        // TRAINERS
-        // =========================================================
-        private void btnTrainers_Click(
-            object sender,
-            EventArgs e)
+        private void btnTrainers_Click(object sender, EventArgs e)
         {
             try
             {
-                TrainerForm trainerForm =
-                    new TrainerForm();
-
+                TrainerForm trainerForm = new TrainerForm();
                 this.Hide();
 
-                trainerForm.FormClosed +=
-                    (s, args) =>
-                    {
-                        this.Show();
-                        LoadDashboardData();
-                    };
+                trainerForm.FormClosed += (s, args) =>
+                {
+                    this.Show();
+                    LoadDashboardData();
+                };
 
                 trainerForm.Show();
             }
             catch (Exception ex)
             {
-                MessageBox.Show(
-                    "Could not open Trainer Management.\n\n" +
-                    ex.Message,
-                    "Trainer Error",
-                    MessageBoxButtons.OK,
-                    MessageBoxIcon.Error
-                );
+                MessageBox.Show("Could not open Trainer Management.\n\n" + ex.Message,
+                    "Trainer Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
-
-        // =========================================================
-        // ATTENDANCE
-        // =========================================================
-        private void btnAttendance_Click(
-            object sender,
-            EventArgs e)
+        private void btnAttendance_Click(object sender, EventArgs e)
         {
             try
             {
-                AttendanceForm attendanceForm =
-                    new AttendanceForm();
-
+                AttendanceForm attendanceForm = new AttendanceForm();
                 this.Hide();
 
-                attendanceForm.FormClosed +=
-                    (s, args) =>
-                    {
-                        this.Show();
-
-                        // Attendance save হওয়ার পর
-                        // dashboard count refresh হবে
-                        LoadDashboardData();
-                    };
+                attendanceForm.FormClosed += (s, args) =>
+                {
+                    this.Show();
+                    LoadDashboardData();
+                };
 
                 attendanceForm.Show();
             }
             catch (Exception ex)
             {
-                MessageBox.Show(
-                    "Could not open Attendance Management.\n\n" +
-                    ex.Message,
-                    "Attendance Error",
-                    MessageBoxButtons.OK,
-                    MessageBoxIcon.Error
-                );
+                MessageBox.Show("Could not open Attendance Management.\n\n" + ex.Message,
+                    "Attendance Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
-
-        // =========================================================
-        // PAYMENT
-        // =========================================================
-        private void btnPayment_Click(
-            object sender,
-            EventArgs e)
+        private void btnPayment_Click(object sender, EventArgs e)
         {
             try
             {
-                PaymentForm paymentForm =
-                    new PaymentForm();
-
+                PaymentForm paymentForm = new PaymentForm();
                 this.Hide();
 
-                paymentForm.FormClosed +=
-                    (s, args) =>
-                    {
-                        this.Show();
-
-                        // Payment save/update/delete হওয়ার পর
-                        // Dashboard total payment refresh হবে
-                        LoadDashboardData();
-                    };
+                paymentForm.FormClosed += (s, args) =>
+                {
+                    this.Show();
+                    LoadDashboardData();
+                };
 
                 paymentForm.Show();
             }
             catch (Exception ex)
             {
-                MessageBox.Show(
-                    "Could not open Payment Management.\n\n" +
-                    ex.Message,
-                    "Payment Error",
-                    MessageBoxButtons.OK,
-                    MessageBoxIcon.Error
-                );
+                MessageBox.Show("Could not open Payment Management.\n\n" + ex.Message,
+                    "Payment Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
-
-        // =========================================================
-        // INVOICE
-        // =========================================================
-        private void btnInvoice_Click(
-            object sender,
-            EventArgs e)
+        private void btnInvoice_Click(object sender, EventArgs e)
         {
             try
             {
-                InvoiceForm invoiceForm =
-                    new InvoiceForm();
-
+                InvoiceForm invoiceForm = new InvoiceForm();
                 this.Hide();
 
-                invoiceForm.FormClosed +=
-                    (s, args) =>
-                    {
-                        this.Show();
-
-                        // Invoice form বন্ধ হওয়ার পর
-                        // Dashboard refresh হবে
-                        LoadDashboardData();
-                    };
+                invoiceForm.FormClosed += (s, args) =>
+                {
+                    this.Show();
+                    LoadDashboardData();
+                };
 
                 invoiceForm.Show();
             }
             catch (Exception ex)
             {
-                MessageBox.Show(
-                    "Could not open Invoice Management.\n\n" +
-                    ex.Message,
-                    "Invoice Error",
-                    MessageBoxButtons.OK,
-                    MessageBoxIcon.Error
-                );
+                MessageBox.Show("Could not open Invoice Management.\n\n" + ex.Message,
+                    "Invoice Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
-
-        // =========================================================
-        // WORKOUT
-        // =========================================================
-        private void btnWorkout_Click(
-            object sender,
-            EventArgs e)
+        private void btnWorkout_Click(object sender, EventArgs e)
         {
             try
             {
-                WorkoutForm workoutForm =
-                    new WorkoutForm();
-
+                WorkoutForm workoutForm = new WorkoutForm();
                 this.Hide();
 
-                workoutForm.FormClosed +=
-                    (s, args) =>
-                    {
-                        this.Show();
-                        LoadDashboardData();
-                    };
+                workoutForm.FormClosed += (s, args) =>
+                {
+                    this.Show();
+                    LoadDashboardData();
+                };
 
                 workoutForm.Show();
             }
             catch (Exception ex)
             {
-                MessageBox.Show(
-                    "Could not open Workout Management.\n\n" +
-                    ex.Message,
-                    "Workout Error",
-                    MessageBoxButtons.OK,
-                    MessageBoxIcon.Error
-                );
+                MessageBox.Show("Could not open Workout Management.\n\n" + ex.Message,
+                    "Workout Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
-
-        // =========================================================
-        // HEALTH
-        // =========================================================
-        private void btnHealth_Click(
-            object sender,
-            EventArgs e)
+        private void btnHealth_Click(object sender, EventArgs e)
         {
             try
             {
-                HealthForm healthForm =
-                    new HealthForm();
-
+                HealthForm healthForm = new HealthForm();
                 this.Hide();
 
-                healthForm.FormClosed +=
-                    (s, args) =>
-                    {
-                        this.Show();
-                        LoadDashboardData();
-                    };
+                healthForm.FormClosed += (s, args) =>
+                {
+                    this.Show();
+                    LoadDashboardData();
+                };
 
                 healthForm.Show();
             }
             catch (Exception ex)
             {
-                MessageBox.Show(
-                    "Could not open Health Management.\n\n" +
-                    ex.Message,
-                    "Health Error",
-                    MessageBoxButtons.OK,
-                    MessageBoxIcon.Error
-                );
+                MessageBox.Show("Could not open Health Management.\n\n" + ex.Message,
+                    "Health Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
-
-        // =========================================================
-        // REPORTS
-        // =========================================================
-        private void btnReports_Click(
-            object sender,
-            EventArgs e)
+        private void btnReports_Click(object sender, EventArgs e)
         {
             try
             {
-                ReportForm reportForm =
-                    new ReportForm();
-
+                ReportForm reportForm = new ReportForm();
                 this.Hide();
 
-                reportForm.FormClosed +=
-                    (s, args) =>
-                    {
-                        this.Show();
-                        LoadDashboardData();
-                    };
+                reportForm.FormClosed += (s, args) =>
+                {
+                    this.Show();
+                    LoadDashboardData();
+                };
 
                 reportForm.Show();
             }
             catch (Exception ex)
             {
-                MessageBox.Show(
-                    "Could not open Report Management.\n\n" +
-                    ex.Message,
-                    "Report Error",
-                    MessageBoxButtons.OK,
-                    MessageBoxIcon.Error
-                );
+                MessageBox.Show("Could not open Report Management.\n\n" + ex.Message,
+                    "Report Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
-
-        // =========================================================
-        // REPORT BUTTON
-        // =========================================================
-        // তোমার Designer-এ যদি btnReport থাকে,
-        // সেটাকে btnReports-এর সাথে connect করা যাবে।
-        private void btnReport_Click(
-            object sender,
-            EventArgs e)
+        private void btnReport_Click(object sender, EventArgs e)
         {
             btnReports_Click(sender, e);
         }
 
-
-        // =========================================================
-        // LOGOUT
-        // =========================================================
-        private void btnLogout_Click(
-            object sender,
-            EventArgs e)
+        private void btnLogout_Click(object sender, EventArgs e)
         {
-            DialogResult result =
-                MessageBox.Show(
-                    "Are you sure you want to logout?",
-                    "Logout",
-                    MessageBoxButtons.YesNo,
-                    MessageBoxIcon.Question
-                );
+            DialogResult result = MessageBox.Show(
+                "Are you sure you want to logout?",
+                "Logout",
+                MessageBoxButtons.YesNo,
+                MessageBoxIcon.Question);
 
             if (result == DialogResult.Yes)
             {
-                LoginForm loginForm =
-                    new LoginForm();
-
+                LoginForm loginForm = new LoginForm();
                 loginForm.Show();
-
                 this.Hide();
             }
+        }
+
+        private void lblGymName_Click(object sender, EventArgs e)
+        {
         }
     }
 }

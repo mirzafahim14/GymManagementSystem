@@ -5,44 +5,49 @@ using Microsoft.Data.SqlClient;
 
 namespace gymmanagementsystem_2.FORMS
 {
-    public partial class MemberPaymentForm : Form
+    public partial class MemberInvoiceForm : Form
     {
         // =========================================================
         // LOGGED-IN MEMBER ID
         // =========================================================
+
         private readonly int _memberId;
 
 
         // =========================================================
         // CONSTRUCTOR
         // =========================================================
-        public MemberPaymentForm(int memberId)
+
+        public MemberInvoiceForm(int memberId)
         {
             InitializeComponent();
 
             _memberId = memberId;
 
-            // Form Load
-            this.Load += MemberPaymentForm_Load;
+            // Form Load event
+            this.Load += MemberInvoiceForm_Load;
         }
 
 
         // =========================================================
         // FORM LOAD
         // =========================================================
-        private void MemberPaymentForm_Load(object sender, EventArgs e)
+
+        private void MemberInvoiceForm_Load(
+            object sender,
+            EventArgs e)
         {
             try
             {
                 LoadMemberInformation();
-                LoadPayments();
+                LoadInvoices();
             }
             catch (Exception ex)
             {
                 MessageBox.Show(
-                    "Failed to load payment information.\n\n" +
+                    "Failed to load My Invoices.\n\n" +
                     ex.Message,
-                    "Payment Error",
+                    "Invoice Error",
                     MessageBoxButtons.OK,
                     MessageBoxIcon.Error
                 );
@@ -53,6 +58,7 @@ namespace gymmanagementsystem_2.FORMS
         // =========================================================
         // LOAD MEMBER INFORMATION
         // =========================================================
+
         private void LoadMemberInformation()
         {
             string query = @"
@@ -63,10 +69,16 @@ namespace gymmanagementsystem_2.FORMS
                 WHERE MemberId = @MemberId;
             ";
 
+
             DataTable table = DbHelper.ExecuteQuery(
                 query,
                 new SqlParameter("@MemberId", _memberId)
             );
+
+
+            // =====================================================
+            // MEMBER NOT FOUND
+            // =====================================================
 
             if (table.Rows.Count == 0)
             {
@@ -80,34 +92,56 @@ namespace gymmanagementsystem_2.FORMS
                 return;
             }
 
+
+            // =====================================================
+            // GET MEMBER ROW
+            // =====================================================
+
             DataRow row = table.Rows[0];
 
+
+            // =====================================================
+            // DISPLAY MEMBER ID
+            // =====================================================
+
             lblMemberId.Text =
-                "Member ID: " + GetString(row["MemberId"]);
+                "Member ID: " +
+                GetString(row["MemberId"]);
+
+
+            // =====================================================
+            // DISPLAY MEMBER NAME
+            // =====================================================
 
             lblMemberName.Text =
-                "Member Name: " + GetString(row["FullName"]);
+                "Member Name: " +
+                GetString(row["FullName"]);
         }
 
 
         // =========================================================
-        // LOAD MEMBER PAYMENTS
+        // LOAD INVOICES
         // =========================================================
-        private void LoadPayments()
+
+        private void LoadInvoices()
         {
             string query = @"
                 SELECT
+                    InvoiceId,
+                    InvoiceNumber,
+                    MemberId,
                     PaymentId,
-                    PaymentDate,
-                    Amount,
-                    PaymentMethod,
-                    TransactionReference,
-                    Status,
+                    InvoiceDate,
+                    SubTotal,
+                    Discount,
+                    TotalAmount,
+                    PaymentStatus,
                     Notes
-                FROM Payments
+                FROM Invoices
                 WHERE MemberId = @MemberId
-                ORDER BY PaymentDate DESC, PaymentId DESC;
+                ORDER BY InvoiceDate DESC, InvoiceId DESC;
             ";
+
 
             DataTable table = DbHelper.ExecuteQuery(
                 query,
@@ -116,79 +150,102 @@ namespace gymmanagementsystem_2.FORMS
 
 
             // =====================================================
-            // CLEAR EXISTING ROWS
+            // CLEAR OLD DATA
             // =====================================================
 
-            dgvPayments.Rows.Clear();
-
-
-            // =====================================================
-            // ADD PAYMENT DATA TO GRID
-            // =====================================================
-
-            foreach (DataRow row in table.Rows)
-            {
-                dgvPayments.Rows.Add(
-                    FormatDate(row["PaymentDate"]),
-                    FormatAmount(row["Amount"]),
-                    GetString(row["PaymentMethod"]),
-                    GetString(row["TransactionReference"]),
-                    GetString(row["Status"]),
-                    GetString(row["Notes"]),
-                    GetString(row["PaymentId"])
-                );
-            }
-
-
-            // =====================================================
-            // TOTAL PAYMENT COUNT
-            // =====================================================
-
-            int totalPayments = table.Rows.Count;
-
-            lblTotalPayments.Text =
-                "Total Payments: " + totalPayments;
+            dgvInvoices.Rows.Clear();
 
 
             // =====================================================
             // TOTAL AMOUNT
             // =====================================================
 
-            decimal totalAmount = 0;
+            decimal totalAmount = 0m;
+
+
+            // =====================================================
+            // ADD DATABASE DATA TO DATAGRIDVIEW
+            // =====================================================
 
             foreach (DataRow row in table.Rows)
             {
-                if (row["Amount"] != DBNull.Value)
-                {
-                    decimal amount;
+                string invoiceNumber =
+                    GetString(row["InvoiceNumber"]);
 
-                    if (decimal.TryParse(
-                        row["Amount"].ToString(),
-                        out amount))
-                    {
-                        totalAmount += amount;
-                    }
-                }
+
+                string invoiceDate =
+                    FormatDate(row["InvoiceDate"]);
+
+
+                decimal subTotal =
+                    GetDecimal(row["SubTotal"]);
+
+
+                decimal discount =
+                    GetDecimal(row["Discount"]);
+
+
+                decimal total =
+                    GetDecimal(row["TotalAmount"]);
+
+
+                string paymentStatus =
+                    GetString(row["PaymentStatus"]);
+
+
+                // =================================================
+                // ADD ROW
+                // =================================================
+
+                dgvInvoices.Rows.Add(
+                    invoiceNumber,
+                    invoiceDate,
+                    subTotal.ToString("0.00"),
+                    discount.ToString("0.00"),
+                    total.ToString("0.00"),
+                    paymentStatus
+                );
+
+
+                // =================================================
+                // CALCULATE TOTAL
+                // =================================================
+
+                totalAmount += total;
             }
 
+
+            // =====================================================
+            // DISPLAY SUMMARY
+            // =====================================================
+
+            IbInvoiceNo.Text =
+                "Total Invoices: " +
+                table.Rows.Count;
+
+
             lblTotalAmount.Text =
-                "Total Amount Paid: " +
-                totalAmount.ToString("N2");
+                "Total Amount: " +
+                totalAmount.ToString("0.00");
         }
 
 
         // =========================================================
         // REFRESH BUTTON
         // =========================================================
-        private void btnRefresh_Click(object sender, EventArgs e)
+
+        private void btnRefresh_Click(
+            object sender,
+            EventArgs e)
         {
             try
             {
                 LoadMemberInformation();
-                LoadPayments();
+
+                LoadInvoices();
 
                 MessageBox.Show(
-                    "Payment information refreshed successfully.",
+                    "Invoice information refreshed successfully.",
                     "Refresh",
                     MessageBoxButtons.OK,
                     MessageBoxIcon.Information
@@ -197,7 +254,7 @@ namespace gymmanagementsystem_2.FORMS
             catch (Exception ex)
             {
                 MessageBox.Show(
-                    "Unable to refresh payment information.\n\n" +
+                    "Unable to refresh invoices.\n\n" +
                     ex.Message,
                     "Refresh Error",
                     MessageBoxButtons.OK,
@@ -210,7 +267,10 @@ namespace gymmanagementsystem_2.FORMS
         // =========================================================
         // CLOSE BUTTON
         // =========================================================
-        private void btnClose_Click(object sender, EventArgs e)
+
+        private void btnClose_Click(
+            object sender,
+            EventArgs e)
         {
             this.Close();
         }
@@ -219,55 +279,83 @@ namespace gymmanagementsystem_2.FORMS
         // =========================================================
         // SAFE STRING CONVERSION
         // =========================================================
+
         private string GetString(object value)
         {
-            if (value == null || value == DBNull.Value)
+            if (value == null ||
+                value == DBNull.Value)
+            {
                 return "—";
+            }
 
-            string text = value.ToString();
+
+            string text =
+                value.ToString();
+
 
             if (string.IsNullOrWhiteSpace(text))
+            {
                 return "—";
+            }
+
 
             return text;
         }
 
 
         // =========================================================
+        // SAFE DECIMAL CONVERSION
+        // =========================================================
+
+        private decimal GetDecimal(object value)
+        {
+            if (value == null ||
+                value == DBNull.Value)
+            {
+                return 0m;
+            }
+
+
+            if (decimal.TryParse(
+                value.ToString(),
+                out decimal result))
+            {
+                return result;
+            }
+
+
+            return 0m;
+        }
+
+
+        // =========================================================
         // DATE FORMAT
         // =========================================================
+
         private string FormatDate(object value)
         {
-            if (value == null || value == DBNull.Value)
+            if (value == null ||
+                value == DBNull.Value)
+            {
                 return "—";
+            }
+
 
             if (DateTime.TryParse(
                 value.ToString(),
                 out DateTime date))
             {
-                return date.ToString("dd MMM yyyy");
+                return date.ToString(
+                    "dd MMM yyyy");
             }
+
 
             return "—";
         }
 
-
-        // =========================================================
-        // AMOUNT FORMAT
-        // =========================================================
-        private string FormatAmount(object value)
+        private void lblTitle_Click(object sender, EventArgs e)
         {
-            if (value == null || value == DBNull.Value)
-                return "0.00";
 
-            if (decimal.TryParse(
-                value.ToString(),
-                out decimal amount))
-            {
-                return amount.ToString("N2");
-            }
-
-            return "0.00";
         }
     }
 }

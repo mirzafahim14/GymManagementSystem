@@ -7,7 +7,11 @@ namespace gymmanagementsystem_2.FORMS
 {
     public partial class MemberDashboardForm : Form
     {
+        // =========================================================
+        // LOGGED-IN MEMBER ID
+        // =========================================================
         private readonly int _memberId;
+
 
         // =========================================================
         // CONSTRUCTOR
@@ -18,9 +22,13 @@ namespace gymmanagementsystem_2.FORMS
 
             _memberId = memberId;
 
+            // Form Load
             this.Load += MemberDashboardForm_Load;
 
-            // Quick Access buttons
+            // =====================================================
+            // QUICK ACCESS BUTTON EVENTS
+            // =====================================================
+
             btnQuickAttendance.Click += btnMyAttendance_Click;
             btnQuickPayment.Click += btnMyPayments_Click;
             btnQuickInvoice.Click += btnMyInvoices_Click;
@@ -37,15 +45,18 @@ namespace gymmanagementsystem_2.FORMS
         {
             try
             {
+                // Current date
                 lblCurrentDate.Text =
                     "Date: " + DateTime.Now.ToString("dd MMMM yyyy");
 
+                // Load member information
                 LoadMemberDashboard();
             }
             catch (Exception ex)
             {
                 MessageBox.Show(
-                    "Failed to load member dashboard.\n\n" + ex.Message,
+                    "Failed to load member dashboard.\n\n" +
+                    ex.Message,
                     "Dashboard Error",
                     MessageBoxButtons.OK,
                     MessageBoxIcon.Error
@@ -55,7 +66,7 @@ namespace gymmanagementsystem_2.FORMS
 
 
         // =========================================================
-        // LOAD MEMBER INFORMATION
+        // LOAD MEMBER DASHBOARD INFORMATION
         // =========================================================
         private void LoadMemberDashboard()
         {
@@ -67,7 +78,8 @@ namespace gymmanagementsystem_2.FORMS
                     m.Phone,
                     m.Email,
                     m.Status,
-                   m.MembershipStartDate, m.MembershipEndDate,
+                    m.MembershipStartDate,
+                    m.MembershipEndDate,
                     mp.PlanName
                 FROM Members m
                 LEFT JOIN MembershipPlans mp
@@ -80,10 +92,16 @@ namespace gymmanagementsystem_2.FORMS
                 new SqlParameter("@MemberId", _memberId)
             );
 
+
+            // =====================================================
+            // MEMBER NOT FOUND
+            // =====================================================
+
             if (table.Rows.Count == 0)
             {
                 MessageBox.Show(
-                    "Member information not found.",
+                    "Member information was not found.\n\n" +
+                    "Member ID: " + _memberId,
                     "Member Not Found",
                     MessageBoxButtons.OK,
                     MessageBoxIcon.Warning
@@ -92,36 +110,44 @@ namespace gymmanagementsystem_2.FORMS
                 return;
             }
 
+
             DataRow row = table.Rows[0];
 
 
             // =====================================================
-            // BASIC INFORMATION
+            // BASIC MEMBER INFORMATION
             // =====================================================
 
             lblMemberName.Text =
-                "Member Name: " + GetString(row["FullName"]);
+                "Member Name: " +
+                GetString(row["FullName"]);
 
             lblMemberRole.Text =
                 "Role: Member";
 
             lblMemberId.Text =
-                "Member ID: " + GetString(row["MemberId"]);
+                "Member ID: " +
+                GetString(row["MemberId"]);
 
             lblFullName.Text =
-                "Full Name: " + GetString(row["FullName"]);
+                "Full Name: " +
+                GetString(row["FullName"]);
 
             lblPhone.Text =
-                "Phone: " + GetString(row["Phone"]);
+                "Phone: " +
+                GetString(row["Phone"]);
 
             lblEmail.Text =
-                "Email: " + GetString(row["Email"]);
+                "Email: " +
+                GetString(row["Email"]);
 
             lblGender.Text =
-                "Gender: " + GetString(row["Gender"]);
+                "Gender: " +
+                GetString(row["Gender"]);
 
             lblMembershipPlan.Text =
-                "Membership Plan: " + GetString(row["PlanName"]);
+                "Membership Plan: " +
+                GetString(row["PlanName"]);
 
 
             // =====================================================
@@ -129,19 +155,24 @@ namespace gymmanagementsystem_2.FORMS
             // =====================================================
 
             lblPlanName.Text =
-                "Plan: " + GetString(row["PlanName"]);
+                "Plan: " +
+                GetString(row["PlanName"]);
 
             lblStartDate.Text =
-                "Start Date: " + FormatDate(row["MembershipStartDate"]);
+                "Start Date: " +
+                FormatDate(row["MembershipStartDate"]);
 
             lblExpiryDate.Text =
-                "Expiry Date: " + FormatDate(row["MembershipEndDate"]);
+                "Expiry Date: " +
+                FormatDate(row["MembershipEndDate"]);
 
             lblStatus.Text =
-                "Status: " + GetString(row["Status"]);
+                "Status: " +
+                GetString(row["Status"]);
 
             lblMembershipStatus.Text =
-                "Membership Status: " + GetString(row["Status"]);
+                "Membership Status: " +
+                GetString(row["Status"]);
 
 
             // =====================================================
@@ -154,7 +185,7 @@ namespace gymmanagementsystem_2.FORMS
 
 
         // =========================================================
-        // SAFE STRING
+        // SAFE STRING CONVERSION
         // =========================================================
         private string GetString(object value)
         {
@@ -194,12 +225,23 @@ namespace gymmanagementsystem_2.FORMS
         // =========================================================
         private void btnMyProfile_Click(object sender, EventArgs e)
         {
-            MessageBox.Show(
-                "My Profile module will be added next.",
-                "My Profile",
-                MessageBoxButtons.OK,
-                MessageBoxIcon.Information
-            );
+            try
+            {
+                MemberProfileForm form =
+                    new MemberProfileForm(_memberId);
+
+                form.ShowDialog();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(
+                    "Unable to open My Profile.\n\n" +
+                    ex.Message,
+                    "Navigation Error",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Error
+                );
+            }
         }
 
 
@@ -208,12 +250,23 @@ namespace gymmanagementsystem_2.FORMS
         // =========================================================
         private void btnMyAttendance_Click(object sender, EventArgs e)
         {
-            MessageBox.Show(
-                "My Attendance module will be added next.",
-                "My Attendance",
-                MessageBoxButtons.OK,
-                MessageBoxIcon.Information
-            );
+            try
+            {
+                MemberAttendanceForm form =
+                    new MemberAttendanceForm(_memberId);
+
+                form.ShowDialog();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(
+                    "Unable to open My Attendance.\n\n" +
+                    ex.Message,
+                    "Navigation Error",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Error
+                );
+            }
         }
 
 
@@ -222,12 +275,23 @@ namespace gymmanagementsystem_2.FORMS
         // =========================================================
         private void btnMyPayments_Click(object sender, EventArgs e)
         {
-            MessageBox.Show(
-                "My Payments module will be added next.",
-                "My Payments",
-                MessageBoxButtons.OK,
-                MessageBoxIcon.Information
-            );
+            try
+            {
+                MemberPaymentForm form =
+                    new MemberPaymentForm(_memberId);
+
+                form.ShowDialog();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(
+                    "Unable to open My Payments.\n\n" +
+                    ex.Message,
+                    "Navigation Error",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Error
+                );
+            }
         }
 
 
@@ -236,12 +300,23 @@ namespace gymmanagementsystem_2.FORMS
         // =========================================================
         private void btnMyInvoices_Click(object sender, EventArgs e)
         {
-            MessageBox.Show(
-                "My Invoices module will be added next.",
-                "My Invoices",
-                MessageBoxButtons.OK,
-                MessageBoxIcon.Information
-            );
+            try
+            {
+                MemberInvoiceForm form =
+                    new MemberInvoiceForm(_memberId);
+
+                form.ShowDialog();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(
+                    "Unable to open My Invoices.\n\n" +
+                    ex.Message,
+                    "Navigation Error",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Error
+                );
+            }
         }
 
 
@@ -250,12 +325,23 @@ namespace gymmanagementsystem_2.FORMS
         // =========================================================
         private void btnMyWorkout_Click(object sender, EventArgs e)
         {
-            MessageBox.Show(
-                "My Workout module will be added next.",
-                "My Workout",
-                MessageBoxButtons.OK,
-                MessageBoxIcon.Information
-            );
+            try
+            {
+                MemberWorkoutForm form =
+                    new MemberWorkoutForm(_memberId);
+
+                form.ShowDialog();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(
+                    "Unable to open My Workout.\n\n" +
+                    ex.Message,
+                    "Navigation Error",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Error
+                );
+            }
         }
 
 
@@ -264,12 +350,23 @@ namespace gymmanagementsystem_2.FORMS
         // =========================================================
         private void btnMyHealth_Click(object sender, EventArgs e)
         {
-            MessageBox.Show(
-                "My Health module will be added next.",
-                "My Health",
-                MessageBoxButtons.OK,
-                MessageBoxIcon.Information
-            );
+            try
+            {
+                MemberHealthForm form =
+                    new MemberHealthForm(_memberId);
+
+                form.ShowDialog();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(
+                    "Unable to open My Health.\n\n" +
+                    ex.Message,
+                    "Navigation Error",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Error
+                );
+            }
         }
 
 
@@ -298,18 +395,25 @@ namespace gymmanagementsystem_2.FORMS
 
         private void lblPlanName_Click(object sender, EventArgs e)
         {
+            // No action required
         }
+
 
         private void lblFullName_Click(object sender, EventArgs e)
         {
+            // No action required
         }
+
 
         private void lblMemberId_Click(object sender, EventArgs e)
         {
+            // No action required
         }
+
 
         private void lblMedicalCondition_Click(object sender, EventArgs e)
         {
+            // No action required
         }
     }
 }

@@ -5,7 +5,7 @@ using Microsoft.Data.SqlClient;
 
 namespace gymmanagementsystem_2.FORMS
 {
-    public partial class MemberPaymentForm : Form
+    public partial class MemberWorkoutForm : Form
     {
         // =========================================================
         // LOGGED-IN MEMBER ID
@@ -16,33 +16,33 @@ namespace gymmanagementsystem_2.FORMS
         // =========================================================
         // CONSTRUCTOR
         // =========================================================
-        public MemberPaymentForm(int memberId)
+        public MemberWorkoutForm(int memberId)
         {
             InitializeComponent();
 
             _memberId = memberId;
 
-            // Form Load
-            this.Load += MemberPaymentForm_Load;
+            // Form Load event
+            this.Load += MemberWorkoutForm_Load;
         }
 
 
         // =========================================================
         // FORM LOAD
         // =========================================================
-        private void MemberPaymentForm_Load(object sender, EventArgs e)
+        private void MemberWorkoutForm_Load(object sender, EventArgs e)
         {
             try
             {
                 LoadMemberInformation();
-                LoadPayments();
+                LoadWorkoutPlan();
             }
             catch (Exception ex)
             {
                 MessageBox.Show(
-                    "Failed to load payment information.\n\n" +
+                    "Failed to load workout information.\n\n" +
                     ex.Message,
-                    "Payment Error",
+                    "Workout Error",
                     MessageBoxButtons.OK,
                     MessageBoxIcon.Error
                 );
@@ -91,23 +91,35 @@ namespace gymmanagementsystem_2.FORMS
 
 
         // =========================================================
-        // LOAD MEMBER PAYMENTS
+        // LOAD WORKOUT PLAN
         // =========================================================
-        private void LoadPayments()
+        private void LoadWorkoutPlan()
         {
             string query = @"
-                SELECT
-                    PaymentId,
-                    PaymentDate,
-                    Amount,
-                    PaymentMethod,
-                    TransactionReference,
-                    Status,
-                    Notes
-                FROM Payments
-                WHERE MemberId = @MemberId
-                ORDER BY PaymentDate DESC, PaymentId DESC;
+                SELECT TOP 1
+                    wp.WorkoutPlanId,
+                    wp.MemberId,
+                    wp.TrainerId,
+                    wp.PlanName,
+                    wp.Goal,
+                    wp.Description,
+                    wp.StartDate,
+                    wp.EndDate,
+                    wp.Status,
+                    wp.CreatedAt,
+
+                    t.FullName AS TrainerName
+
+                FROM WorkoutPlans wp
+
+                LEFT JOIN Trainers t
+                    ON wp.TrainerId = t.TrainerId
+
+                WHERE wp.MemberId = @MemberId
+
+                ORDER BY wp.CreatedAt DESC, wp.WorkoutPlanId DESC;
             ";
+
 
             DataTable table = DbHelper.ExecuteQuery(
                 query,
@@ -116,64 +128,123 @@ namespace gymmanagementsystem_2.FORMS
 
 
             // =====================================================
-            // CLEAR EXISTING ROWS
+            // NO WORKOUT PLAN
             // =====================================================
 
-            dgvPayments.Rows.Clear();
-
-
-            // =====================================================
-            // ADD PAYMENT DATA TO GRID
-            // =====================================================
-
-            foreach (DataRow row in table.Rows)
+            if (table.Rows.Count == 0)
             {
-                dgvPayments.Rows.Add(
-                    FormatDate(row["PaymentDate"]),
-                    FormatAmount(row["Amount"]),
-                    GetString(row["PaymentMethod"]),
-                    GetString(row["TransactionReference"]),
-                    GetString(row["Status"]),
-                    GetString(row["Notes"]),
-                    GetString(row["PaymentId"])
+                ClearWorkoutInformation();
+
+                MessageBox.Show(
+                    "No workout plan has been assigned to you yet.",
+                    "Workout Plan",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Information
                 );
+
+                return;
             }
 
 
             // =====================================================
-            // TOTAL PAYMENT COUNT
+            // GET FIRST / LATEST WORKOUT PLAN
             // =====================================================
 
-            int totalPayments = table.Rows.Count;
-
-            lblTotalPayments.Text =
-                "Total Payments: " + totalPayments;
+            DataRow row = table.Rows[0];
 
 
             // =====================================================
-            // TOTAL AMOUNT
+            // PLAN NAME
             // =====================================================
 
-            decimal totalAmount = 0;
+            lblPlanNameValue.Text =
+                GetString(row["PlanName"]);
 
-            foreach (DataRow row in table.Rows)
+
+            // =====================================================
+            // GOAL
+            // =====================================================
+
+            lblGoalTitle.Text =
+                "Goal: " + GetString(row["Goal"]);
+
+
+            // =====================================================
+            // DESCRIPTION
+            // =====================================================
+
+            lblDescription.Text =
+                "Description: " + GetString(row["Description"]);
+
+
+            // =====================================================
+            // TRAINER
+            // =====================================================
+
+            string trainerName = GetString(row["TrainerName"]);
+
+            if (trainerName == "—")
             {
-                if (row["Amount"] != DBNull.Value)
-                {
-                    decimal amount;
-
-                    if (decimal.TryParse(
-                        row["Amount"].ToString(),
-                        out amount))
-                    {
-                        totalAmount += amount;
-                    }
-                }
+                trainerName = "Not Assigned";
             }
 
-            lblTotalAmount.Text =
-                "Total Amount Paid: " +
-                totalAmount.ToString("N2");
+            lblTrainerValue.Text =
+                "Trainer: " + trainerName;
+
+
+            // =====================================================
+            // STATUS
+            // =====================================================
+
+            string status = GetString(row["Status"]);
+
+            lblStatusValue.Text =
+                "Status: " + status;
+
+
+            // =====================================================
+            // START DATE
+            // =====================================================
+
+            lblStartDate.Text =
+                "Start Date: " +
+                FormatDate(row["StartDate"]);
+
+
+            // =====================================================
+            // END DATE
+            // =====================================================
+
+            lblEndDate.Text =
+                "End Date: " +
+                FormatDate(row["EndDate"]);
+        }
+
+
+        // =========================================================
+        // CLEAR WORKOUT INFORMATION
+        // =========================================================
+        private void ClearWorkoutInformation()
+        {
+            lblPlanNameValue.Text = "—";
+
+            lblGoalTitle.Text =
+                "Goal: —";
+
+            lblDescription.Text =
+                "Description: —";
+
+            lblTrainerValue.Text =
+                "Trainer: —";
+
+            lblStatusValue.Text =
+                "Status: —";
+
+            lblStartDate.Text =
+                "Start Date: —";
+
+            lblEndDate.Text =
+                "End Date: —";
         }
 
 
@@ -185,10 +256,10 @@ namespace gymmanagementsystem_2.FORMS
             try
             {
                 LoadMemberInformation();
-                LoadPayments();
+                LoadWorkoutPlan();
 
                 MessageBox.Show(
-                    "Payment information refreshed successfully.",
+                    "Workout information refreshed successfully.",
                     "Refresh",
                     MessageBoxButtons.OK,
                     MessageBoxIcon.Information
@@ -197,7 +268,7 @@ namespace gymmanagementsystem_2.FORMS
             catch (Exception ex)
             {
                 MessageBox.Show(
-                    "Unable to refresh payment information.\n\n" +
+                    "Unable to refresh workout information.\n\n" +
                     ex.Message,
                     "Refresh Error",
                     MessageBoxButtons.OK,
@@ -222,12 +293,16 @@ namespace gymmanagementsystem_2.FORMS
         private string GetString(object value)
         {
             if (value == null || value == DBNull.Value)
+            {
                 return "—";
+            }
 
             string text = value.ToString();
 
             if (string.IsNullOrWhiteSpace(text))
+            {
                 return "—";
+            }
 
             return text;
         }
@@ -239,7 +314,9 @@ namespace gymmanagementsystem_2.FORMS
         private string FormatDate(object value)
         {
             if (value == null || value == DBNull.Value)
+            {
                 return "—";
+            }
 
             if (DateTime.TryParse(
                 value.ToString(),
@@ -249,25 +326,6 @@ namespace gymmanagementsystem_2.FORMS
             }
 
             return "—";
-        }
-
-
-        // =========================================================
-        // AMOUNT FORMAT
-        // =========================================================
-        private string FormatAmount(object value)
-        {
-            if (value == null || value == DBNull.Value)
-                return "0.00";
-
-            if (decimal.TryParse(
-                value.ToString(),
-                out decimal amount))
-            {
-                return amount.ToString("N2");
-            }
-
-            return "0.00";
         }
     }
 }

@@ -37,6 +37,12 @@ namespace gymmanagementsystem_2
         {
             try
             {
+                if (string.IsNullOrWhiteSpace(password) ||
+                    string.IsNullOrWhiteSpace(storedHash))
+                {
+                    return false;
+                }
+
                 string[] parts = storedHash.Split('.');
 
                 if (parts.Length != 3)
@@ -60,14 +66,21 @@ namespace gymmanagementsystem_2
                     byte[] calculatedHash =
                         pbkdf2.GetBytes(storedPasswordHash.Length);
 
-                    // Simple byte-by-byte comparison
-                    if (calculatedHash.Length != storedPasswordHash.Length)
-                        return false;
-
-                    for (int i = 0; i < calculatedHash.Length; i++)
+                    if (calculatedHash.Length !=
+                        storedPasswordHash.Length)
                     {
-                        if (calculatedHash[i] != storedPasswordHash[i])
+                        return false;
+                    }
+
+                    for (int i = 0;
+                         i < calculatedHash.Length;
+                         i++)
+                    {
+                        if (calculatedHash[i] !=
+                            storedPasswordHash[i])
+                        {
                             return false;
+                        }
                     }
 
                     return true;

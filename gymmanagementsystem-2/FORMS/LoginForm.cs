@@ -1,9 +1,9 @@
-﻿using gymmanagementsystem_2;
-using gymmanagementsystem_2.FORMS;
-using Microsoft.Data.SqlClient;
-using System;
+﻿using System;
 using System.Data;
 using System.Windows.Forms;
+using Microsoft.Data.SqlClient;
+using gymmanagementsystem_2;
+using gymmanagementsystem_2.FORMS;
 
 namespace GymManagementSystem.Forms
 {
@@ -14,7 +14,6 @@ namespace GymManagementSystem.Forms
             InitializeComponent();
         }
 
-
         // =========================================================
         // LOGIN BUTTON
         // =========================================================
@@ -23,67 +22,58 @@ namespace GymManagementSystem.Forms
             string username = txtUsername.Text.Trim();
             string password = txtPassword.Text;
 
-            // =====================================================
-            // USERNAME VALIDATION
-            // =====================================================
-
+            // -----------------------------------------------------
+            // Username validation
+            // -----------------------------------------------------
             if (string.IsNullOrWhiteSpace(username))
             {
                 MessageBox.Show(
                     "Please enter your username.",
                     "Login",
                     MessageBoxButtons.OK,
-                    MessageBoxIcon.Warning
-                );
+                    MessageBoxIcon.Warning);
 
                 txtUsername.Focus();
                 return;
             }
 
-
-            // =====================================================
-            // PASSWORD VALIDATION
-            // =====================================================
-
+            // -----------------------------------------------------
+            // Password validation
+            // -----------------------------------------------------
             if (string.IsNullOrWhiteSpace(password))
             {
                 MessageBox.Show(
                     "Please enter your password.",
                     "Login",
                     MessageBoxButtons.OK,
-                    MessageBoxIcon.Warning
-                );
+                    MessageBoxIcon.Warning);
 
                 txtPassword.Focus();
                 return;
             }
 
-
             try
             {
                 // =================================================
-                // GET USER INFORMATION
+                // GET USER FROM DATABASE
                 // =================================================
 
                 string query = @"
-                    SELECT
-                        UserId,
-                        FullName,
-                        Username,
-                        PasswordHash,
-                        Role,
-                        IsActive,
-                        MemberId
+                    SELECT UserId,
+                           FullName,
+                           Username,
+                           PasswordHash,
+                           Role,
+                           IsActive,
+                           MemberId
                     FROM Users
-                    WHERE Username = @Username;
-                ";
+                    WHERE Username = @Username;";
 
+                SqlParameter parameter =
+                    new SqlParameter("@Username", username);
 
-                DataTable table = DbHelper.ExecuteQuery(
-                    query,
-                    new SqlParameter("@Username", username)
-                );
-
+                DataTable table =
+                    DbHelper.ExecuteQuery(query, parameter);
 
                 // =================================================
                 // USER NOT FOUND
@@ -95,15 +85,13 @@ namespace GymManagementSystem.Forms
                         "Invalid username or password.",
                         "Login Failed",
                         MessageBoxButtons.OK,
-                        MessageBoxIcon.Error
-                    );
+                        MessageBoxIcon.Error);
 
                     txtPassword.Clear();
                     txtPassword.Focus();
 
                     return;
                 }
-
 
                 // =================================================
                 // USER DATA
@@ -114,18 +102,17 @@ namespace GymManagementSystem.Forms
                 string storedHash =
                     user["PasswordHash"]?.ToString() ?? "";
 
-                string role =
-                    user["Role"]?.ToString() ?? "";
-
                 string fullName =
                     user["FullName"]?.ToString() ?? "";
+
+                string role =
+                    user["Role"]?.ToString()?.Trim() ?? "";
 
                 bool isActive =
                     Convert.ToBoolean(user["IsActive"]);
 
-
                 // =================================================
-                // CHECK ACCOUNT STATUS
+                // CHECK ACCOUNT ACTIVE
                 // =================================================
 
                 if (!isActive)
@@ -135,12 +122,10 @@ namespace GymManagementSystem.Forms
                         "Please contact the administrator.",
                         "Account Inactive",
                         MessageBoxButtons.OK,
-                        MessageBoxIcon.Warning
-                    );
+                        MessageBoxIcon.Warning);
 
                     return;
                 }
-
 
                 // =================================================
                 // VERIFY PASSWORD
@@ -149,9 +134,7 @@ namespace GymManagementSystem.Forms
                 bool passwordCorrect =
                     PasswordHasher.VerifyPassword(
                         password,
-                        storedHash
-                    );
-
+                        storedHash);
 
                 if (!passwordCorrect)
                 {
@@ -159,8 +142,7 @@ namespace GymManagementSystem.Forms
                         "Invalid username or password.",
                         "Login Failed",
                         MessageBoxButtons.OK,
-                        MessageBoxIcon.Error
-                    );
+                        MessageBoxIcon.Error);
 
                     txtPassword.Clear();
                     txtPassword.Focus();
@@ -168,23 +150,16 @@ namespace GymManagementSystem.Forms
                     return;
                 }
 
-
                 // =================================================
-                // LOGIN SUCCESSFUL
+                // LOGIN SUCCESS
                 // =================================================
 
                 MessageBox.Show(
-                    "Welcome, " + fullName + "!\n\n" +
-                    "Role: " + role,
+                    "Welcome, " + fullName +
+                    "!\n\nRole: " + role,
                     "Login Successful",
                     MessageBoxButtons.OK,
-                    MessageBoxIcon.Information
-                );
-
-
-                // =================================================
-                // OPEN DASHBOARD
-                // =================================================
+                    MessageBoxIcon.Information);
 
                 OpenDashboard(user);
             }
@@ -195,11 +170,9 @@ namespace GymManagementSystem.Forms
                     ex.Message,
                     "Login Error",
                     MessageBoxButtons.OK,
-                    MessageBoxIcon.Error
-                );
+                    MessageBoxIcon.Error);
             }
         }
-
 
         // =========================================================
         // OPEN DASHBOARD BASED ON ROLE
@@ -207,60 +180,53 @@ namespace GymManagementSystem.Forms
         private void OpenDashboard(DataRow user)
         {
             string role =
-                user["Role"]?.ToString() ?? "";
+                user["Role"]?.ToString()?.Trim() ?? "";
 
+            string fullName =
+                user["FullName"]?.ToString()?.Trim() ?? "";
 
             Form dashboard = null;
 
-
-            // =====================================================
-            // ADMIN
-            // =====================================================
-
-            if (role.Equals(
-                "Admin",
-                StringComparison.OrdinalIgnoreCase))
-            {
-                dashboard = new DashboardForm();
-            }
-
-
-            // =====================================================
+            // -----------------------------------------------------
             // SUPER ADMIN
-            // =====================================================
-
-            else if (role.Equals(
+            // -----------------------------------------------------
+            if (role.Equals(
                 "Super Admin",
                 StringComparison.OrdinalIgnoreCase))
             {
-                dashboard = new DashboardForm();
+                dashboard = new DashboardForm(role);
             }
 
+            // -----------------------------------------------------
+            // ADMIN
+            // -----------------------------------------------------
+            else if (role.Equals(
+                "Admin",
+                StringComparison.OrdinalIgnoreCase))
+            {
+                dashboard = new DashboardForm(role);
+            }
 
-            // =====================================================
+            // -----------------------------------------------------
             // STAFF
-            // =====================================================
-
+            // -----------------------------------------------------
             else if (role.Equals(
                 "Staff",
                 StringComparison.OrdinalIgnoreCase))
             {
-                dashboard = new StaffDashboardForm();
+                dashboard =
+                    new StaffDashboardForm(
+                        fullName,
+                        role);
             }
 
-
-            // =====================================================
+            // -----------------------------------------------------
             // MEMBER
-            // =====================================================
-
+            // -----------------------------------------------------
             else if (role.Equals(
                 "Member",
                 StringComparison.OrdinalIgnoreCase))
             {
-                // -----------------------------------------------
-                // MEMBER ID MUST EXIST
-                // -----------------------------------------------
-
                 if (user["MemberId"] == DBNull.Value ||
                     user["MemberId"] == null)
                 {
@@ -270,64 +236,53 @@ namespace GymManagementSystem.Forms
                         "Please contact the administrator.",
                         "Member Account Error",
                         MessageBoxButtons.OK,
-                        MessageBoxIcon.Error
-                    );
+                        MessageBoxIcon.Error);
 
                     return;
                 }
 
-
                 int memberId =
                     Convert.ToInt32(user["MemberId"]);
-
-
-                // -----------------------------------------------
-                // OPEN MEMBER DASHBOARD
-                // -----------------------------------------------
 
                 dashboard =
                     new MemberDashboardForm(memberId);
             }
 
-
-            // =====================================================
+            // -----------------------------------------------------
             // UNKNOWN ROLE
-            // =====================================================
-
+            // -----------------------------------------------------
             else
             {
                 MessageBox.Show(
                     "Unknown user role: " + role,
                     "Login Error",
                     MessageBoxButtons.OK,
-                    MessageBoxIcon.Error
-                );
+                    MessageBoxIcon.Error);
 
                 return;
             }
-
-
-            // =====================================================
-            // DASHBOARD CLOSED
-            // =====================================================
-
-            dashboard.FormClosed += Dashboard_FormClosed;
-
 
             // =====================================================
             // SHOW DASHBOARD
             // =====================================================
 
+            if (dashboard == null)
+            {
+                MessageBox.Show(
+                    "Unable to open dashboard.",
+                    "Login Error",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Error);
+
+                return;
+            }
+
+            dashboard.FormClosed += Dashboard_FormClosed;
+
             dashboard.Show();
-
-
-            // =====================================================
-            // HIDE LOGIN FORM
-            // =====================================================
 
             this.Hide();
         }
-
 
         // =========================================================
         // DASHBOARD CLOSED
@@ -339,7 +294,6 @@ namespace GymManagementSystem.Forms
             this.Close();
         }
 
-
         // =========================================================
         // CLEAR BUTTON
         // =========================================================
@@ -348,21 +302,22 @@ namespace GymManagementSystem.Forms
             txtUsername.Clear();
             txtPassword.Clear();
 
+            chkShowPassword.Checked = false;
+
             txtUsername.Focus();
         }
-
 
         // =========================================================
         // EXIT BUTTON
         // =========================================================
         private void btnExit_Click(object sender, EventArgs e)
         {
-            DialogResult result = MessageBox.Show(
-                "Are you sure you want to exit?",
-                "Exit",
-                MessageBoxButtons.YesNo,
-                MessageBoxIcon.Question
-            );
+            DialogResult result =
+                MessageBox.Show(
+                    "Are you sure you want to exit?",
+                    "Exit",
+                    MessageBoxButtons.YesNo,
+                    MessageBoxIcon.Question);
 
             if (result == DialogResult.Yes)
             {
@@ -370,13 +325,23 @@ namespace GymManagementSystem.Forms
             }
         }
 
-
         // =========================================================
-        // FORM LOAD
+        // SHOW / HIDE PASSWORD
         // =========================================================
-        private void LoginForm_Load(object sender, EventArgs e)
+        private void chkShowPassword_CheckedChanged(
+            object sender,
+            EventArgs e)
         {
-            txtUsername.Focus();
+            if (chkShowPassword.Checked)
+            {
+                txtPassword.UseSystemPasswordChar = false;
+                txtPassword.PasswordChar = '\0';
+            }
+            else
+            {
+                txtPassword.UseSystemPasswordChar = true;
+                txtPassword.PasswordChar = '●';
+            }
         }
     }
 }

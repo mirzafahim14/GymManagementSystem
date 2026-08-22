@@ -209,11 +209,29 @@
     <Compile Include="FORMS\MemberForm.Designer.cs">
       <DependentUpon>MemberForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="FORMS\MemberHealthForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FORMS\MemberHealthForm.Designer.cs">
+      <DependentUpon>MemberHealthForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="FORMS\MemberInvoiceForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FORMS\MemberInvoiceForm.Designer.cs">
+      <DependentUpon>MemberInvoiceForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="FORMS\MemberPaymentForm.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="FORMS\MemberPaymentForm.Designer.cs">
       <DependentUpon>MemberPaymentForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="FORMS\MemberWorkoutForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FORMS\MemberWorkoutForm.Designer.cs">
+      <DependentUpon>MemberWorkoutForm.cs</DependentUpon>
     </Compile>
     <Compile Include="FORMS\PaymentForm.cs">
       <SubType>Form</SubType>
@@ -227,11 +245,59 @@
     <Compile Include="FORMS\ReportForm.Designer.cs">
       <DependentUpon>ReportForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="FORMS\StaffAttendanceForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FORMS\StaffAttendanceForm.Designer.cs">
+      <DependentUpon>StaffAttendanceForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="FORMS\StaffBasicReportForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FORMS\StaffBasicReportForm.Designer.cs">
+      <DependentUpon>StaffBasicReportForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="FORMS\StaffDashboardForm.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="FORMS\StaffDashboardForm.Designer.cs">
       <DependentUpon>StaffDashboardForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="FORMS\StaffHealthForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FORMS\StaffHealthForm.Designer.cs">
+      <DependentUpon>StaffHealthForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="FORMS\StaffInvoiceForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FORMS\StaffInvoiceForm.Designer.cs">
+      <DependentUpon>StaffInvoiceForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="FORMS\StaffMemberForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FORMS\StaffMemberForm.Designer.cs">
+      <DependentUpon>StaffMemberForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="FORMS\StaffPaymentForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FORMS\StaffPaymentForm.Designer.cs">
+      <DependentUpon>StaffPaymentForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="FORMS\StaffTrainerForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FORMS\StaffTrainerForm.Designer.cs">
+      <DependentUpon>StaffTrainerForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="FORMS\StaffWorkoutForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FORMS\StaffWorkoutForm.Designer.cs">
+      <DependentUpon>StaffWorkoutForm.cs</DependentUpon>
     </Compile>
     <Compile Include="FORMS\TrainerForm.cs">
       <SubType>Form</SubType>
@@ -282,8 +348,20 @@
     <EmbeddedResource Include="FORMS\MemberForm.resx">
       <DependentUpon>MemberForm.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="FORMS\MemberHealthForm.resx">
+      <DependentUpon>MemberHealthForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="FORMS\MemberInvoiceForm.resx">
+      <DependentUpon>MemberInvoiceForm.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="FORMS\MemberPaymentForm.resx">
       <DependentUpon>MemberPaymentForm.cs</DependentUpon>
+      <Generator>PublicResXFileCodeGenerator</Generator>
+      <SubType>Designer</SubType>
+      <LastGenOutput>MemberPaymentForm1.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Include="FORMS\MemberWorkoutForm.resx">
+      <DependentUpon>MemberWorkoutForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="FORMS\PaymentForm.resx">
       <DependentUpon>PaymentForm.cs</DependentUpon>
@@ -291,8 +369,23 @@
     <EmbeddedResource Include="FORMS\ReportForm.resx">
       <DependentUpon>ReportForm.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="FORMS\StaffAttendanceForm.resx">
+      <DependentUpon>StaffAttendanceForm.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="FORMS\StaffDashboardForm.resx">
       <DependentUpon>StaffDashboardForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="FORMS\StaffInvoiceForm.resx">
+      <DependentUpon>StaffInvoiceForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="FORMS\StaffMemberForm.resx">
+      <DependentUpon>StaffMemberForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="FORMS\StaffPaymentForm.resx">
+      <DependentUpon>StaffPaymentForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="FORMS\StaffTrainerForm.resx">
+      <DependentUpon>StaffTrainerForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="FORMS\TrainerForm.resx">
       <DependentUpon>TrainerForm.cs</DependentUpon>
